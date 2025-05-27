@@ -1,6 +1,21 @@
 from django.db import models
 from django.conf import settings
 from menu.models import Dish
+from django.contrib.auth import get_user_model
+from accounts.models import CustomUser
+
+
+
+User = get_user_model()
+
+class Address(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='order_addresses')
+    city = models.CharField(max_length=100, default='Івано-Франківськ')
+    street = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.city}, {self.street}"
+
 
 class Order(models.Model):
     DELIVERY_CHOICES = [

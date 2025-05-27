@@ -5,15 +5,15 @@ from cart.cart import Cart
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 
+
 @login_required
 def checkout_view(request):
     cart = Cart(request)
-
     if not cart.cart:
         return redirect('menu')
 
     if request.method == 'POST':
-        form = CheckoutForm(request.POST)
+        form = CheckoutForm(request.POST or None, user=request.user)
         if form.is_valid():
             order = form.save(commit=False)
             order.user = request.user
@@ -21,8 +21,19 @@ def checkout_view(request):
             total = cart.get_total_price()
             if order.delivery_type == 'delivery' and total < 1500:
                 total += 100
-
             order.total_price = total
+
+            # Адреса
+            if form.cleaned_data['use_saved_address']:
+                address = form.cleaned_data['use_saved_address']
+                order.street = address.street
+                order.building = address.building
+                order.apartment = address.apartment
+            else:
+                order.street = form.cleaned_data['street']
+                order.building = form.cleaned_data['building']
+                order.apartment = form.cleaned_data['apartment']
+
             order.save()
 
             for item in cart:
@@ -32,21 +43,19 @@ def checkout_view(request):
                     quantity=item['quantity'],
                     price=item['dish'].price
                 )
-
             cart.clear()
 
             if order.payment_method in ['binance', 'liqpay']:
                 return redirect(f'/pay/{order.id}/')
             return redirect(f'/order/{order.id}/')
-
     else:
-        initial_data = {
-            'first_name': request.user.first_name,
-            'phone': request.user.phone
+        initial = {
+            'name': request.user.first_name,
+            'phone': request.user.phone,
         }
-        form = CheckoutForm(initial=initial_data)
+        form = CheckoutForm(initial=initial, user=request.user)
 
-    return render(request, 'orders/checkout.html', {'form': form, 'cart': cart})
+    return render(request, 'orders/checkout.html', {'form': form})
 
 @login_required
 def order_detail_view(request, order_id):

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'orders',
     'accounts',
     'mathfilters',
+    'widget_tweaks',
 
 ]
 

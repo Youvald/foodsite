@@ -1,10 +1,118 @@
-<h2>Оформлення замовлення</h2>
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Оформлення замовлення{% endblock %}
 
-<a href="/cart/">← Назад до кошика</a>
+{% block content %}
+<div class="container mt-4">
+  <h2>Оформлення замовлення</h2>
+  <form method="post" action="{% url 'checkout' %}">
+    {% csrf_token %}
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <p><strong>Сума: {{ cart.get_total_price }} грн</strong></p>
-  <button type="submit">Підтвердити замовлення</button>
-</form>
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label for="name" class="form-label">Ім’я</label>
+        {{ form.name|add_class:"form-control"|attr:"readonly:readonly" }}
+      </div>
+      <div class="col-md-6">
+        <label for="phone" class="form-label">Номер телефону</label>
+        {{ form.phone|add_class:"form-control"|attr:"placeholder:+380XXXXXXXXX"|attr:"pattern:^\\+380\\d{9}$"|attr:"required:required" }}
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="delivery_type" class="form-label">Спосіб доставки</label>
+      {{ form.delivery_type|add_class:"form-select"|attr:"id:delivery-method"|attr:"onchange:toggleAddressFields()" }}
+    </div>
+
+    <div id="saved-address" class="mb-3">
+      <label class="form-label">Виберіть збережену адресу (або залиште порожнім для нової)</label>
+      {{ form.use_saved_address|add_class:"form-select" }}
+    </div>
+
+    <div id="new-address-fields">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label">Місто</label>
+          <input type="text" class="form-control" value="Івано-Франківськ" readonly>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Вулиця</label>
+          {{ form.street|add_class:"form-control" }}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Будинок</label>
+          {{ form.building|add_class:"form-control" }}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Квартира (необов'язково)</label>
+          {{ form.apartment|add_class:"form-control" }}
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="payment_method" class="form-label">Спосіб оплати</label>
+      {{ form.payment_method|add_class:"form-select" }}
+    </div>
+
+    <button type="submit" class="btn btn-success">Підтвердити замовлення</button>
+  </form>
+</div>
+
+<script>
+  function toggleAddressFields() {
+    const deliveryMethod = document.getElementById('delivery-method');
+    const savedAddressBlock = document.getElementById('saved-address');
+    const newAddressFields = document.getElementById('new-address-fields');
+    const savedAddressSelect = document.querySelector('[name="use_saved_address"]');
+
+    const isPickup = deliveryMethod.value === 'pickup';
+
+    if (savedAddressBlock) savedAddressBlock.style.display = isPickup ? 'none' : 'block';
+    if (newAddressFields) {
+      if (isPickup) {
+        newAddressFields.style.display = 'none';
+      } else {
+        // Якщо доставка: показати поле нової адреси лише якщо не обрано збережену
+        newAddressFields.style.display = savedAddressSelect && savedAddressSelect.value ? 'none' : 'block';
+      }
+    }
+  }
+
+  function toggleSavedAddressFields() {
+    const deliveryMethod = document.getElementById('delivery-method');
+    const savedAddressSelect = document.querySelector('[name="use_saved_address"]');
+    const newAddressFields = document.getElementById('new-address-fields');
+
+    if (deliveryMethod.value === 'pickup') {
+      // Не чіпаємо нічого, бо самовивіз уже ховає
+      return;
+    }
+
+    if (savedAddressSelect && newAddressFields) {
+      newAddressFields.style.display = savedAddressSelect.value ? 'none' : 'block';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    toggleAddressFields();
+    toggleSavedAddressFields();
+
+    const deliveryMethod = document.getElementById('delivery-method');
+    const savedAddressSelect = document.querySelector('[name="use_saved_address"]');
+
+    if (deliveryMethod) {
+      deliveryMethod.addEventListener('change', function () {
+        toggleAddressFields();
+        toggleSavedAddressFields();
+      });
+    }
+
+    if (savedAddressSelect) {
+      savedAddressSelect.addEventListener('change', toggleSavedAddressFields);
+    }
+  });
+</script>
+
+
+{% endblock %}
