@@ -1,20 +1,42 @@
-<h2>Профіль користувача: {{ user.first_name }}</h2>
+{% extends 'base.html' %}
+{% block title %}Мій профіль{% endblock %}
 
-<a href="/">← Назад до меню</a> |
-<a href="{% url 'logout' %}">Вийти</a>
-
-<h3>Адреси доставки</h3>
-
-{% for addr in addresses %}
-  <div>
-    <p>{{ addr.city }}, {{ addr.street }} {{ addr.building }} {% if addr.apartment %}, кв. {{ addr.apartment }}{% endif %}
-       {% if addr.is_default %}(основна){% endif %}</p>
-    <a href="{% url 'edit_address' addr.id %}">Редагувати</a> |
-    <a href="{% url 'delete_address' addr.id %}">Видалити</a>
+{% block content %}
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Профіль користувача: {{ user.first_name }}</h2>
+    <div>
+      <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">Вийти</a>
+    </div>
   </div>
-{% empty %}
-  <p>Немає збережених адрес.</p>
-{% endfor %}
 
-<br>
-<a href="{% url 'add_address' %}"><button>Додати нову адресу</button></a>
+  <a href="/" class="btn btn-link mb-3">← Назад до меню</a>
+
+  <h4 class="mb-3">Адреси доставки</h4>
+
+  {% if addresses %}
+    <div class="list-group mb-4">
+      {% for addr in addresses %}
+        <div class="list-group-item d-flex justify-content-between align-items-start flex-column flex-md-row">
+          <div>
+            <p class="mb-1">
+              {{ addr.city }}, {{ addr.street }} {{ addr.building }}
+              {% if addr.apartment %}, кв. {{ addr.apartment }}{% endif %}
+              {% if addr.is_default %}<span class="badge bg-primary ms-2">Основна</span>{% endif %}
+            </p>
+          </div>
+          <div class="mt-2 mt-md-0">
+            <a href="{% url 'edit_address' addr.id %}" class="btn btn-sm btn-outline-secondary me-2">Редагувати</a>
+            <a href="{% url 'delete_address' addr.id %}" class="btn btn-sm btn-outline-danger">Видалити</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted">Немає збережених адрес.</p>
+  {% endif %}
+
+  <a href="{% url 'add_address' %}" class="btn btn-primary">Додати нову адресу</a>
+</div>
+
+{% endblock %}
