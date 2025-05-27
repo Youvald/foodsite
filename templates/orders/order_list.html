@@ -1,0 +1,17 @@
+<h2>Мої замовлення</h2>
+<a href="/">← На головну</a> | <a href="{% url 'profile' %}">Профіль</a>
+
+{% if orders %}
+  <ul>
+    {% for order in orders %}
+      <li>
+        <a href="{% url 'order_detail' order.id %}">Замовлення №{{ order.id }}</a><br>
+        Дата: {{ order.created_at|date:"d.m.Y H:i" }}<br>
+        Статус: {{ order.get_status_display }}
+      </li>
+      <hr>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>У вас ще немає замовлень.</p>
+{% endif %}

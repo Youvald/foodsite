@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}{{ dish.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    {% if dish.image %}
+      <img src="{{ dish.image.url }}" class="img-fluid rounded mb-3" alt="{{ dish.name }}">
+    {% else %}
+      <div class="d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
+        <span class="text-muted">Немає фото</span>
+      </div>
+    {% endif %}
+  </div>
+  <div class="col-md-6">
+    <h2>{{ dish.name }}</h2>
+    <p class="text-muted">{{ dish.description }}</p>
+    <p><strong>Вага:</strong> {{ dish.weight }} г</p>
+    <p><strong>Ціна:</strong> {{ dish.price }} грн</p>
+
+    <form method="post" action="{% url 'add_to_cart' dish.id %}" class="mt-3">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <div class="input-group mb-3">
+        <input type="number" name="quantity" value="1" min="1" class="form-control" style="max-width: 70px;">
+        <button type="submit" class="btn btn-success">Додати до кошика</button>
+      </div>
+    </form>
+
+    <a href="/" class="btn btn-outline-secondary mt-2">Назад до меню</a>
+  </div>
+</div>
+{% endblock %}

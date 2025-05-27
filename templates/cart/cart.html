@@ -1,0 +1,35 @@
+<h2>Кошик</h2>
+<a href="/">← Назад до меню</a>
+
+{% for item in cart %}
+  <div style="display:flex; align-items:center; margin-bottom:10px;">
+      {% if dish.image %}
+      <img src="{{ dish.image.url }}" alt="{{ dish.name }}" width="150">
+    {% else %}
+      <div style="width:150px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">
+        <span>Немає фото</span>
+      </div>
+    {% endif %}
+    <div style="margin-left: 15px;">
+      <h4>{{ item.dish.name }}</h4>
+      <p>Ціна: {{ item.dish.price }} грн</p>
+
+      <form method="post" action="{% url 'update_quantity' item.dish.id %}">
+        {% csrf_token %}
+        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" style="width: 60px;">
+        <button type="submit">Оновити кількість</button>
+      </form>
+
+      <p>Сума: {{ item.total_price }} грн</p>
+      <a href="{% url 'remove_from_cart' item.dish.id %}">Видалити</a>
+    </div>
+  </div>
+{% empty %}
+  <p>Кошик порожній.</p>
+{% endfor %}
+<hr>
+<p><strong>Загальна сума: {{ cart.get_total_price }} грн</strong></p>
+
+{% if cart.get_total_price > 0 %}
+  <a href="{% url 'checkout' %}"><button>Оформити замовлення</button></a>
+{% endif %}

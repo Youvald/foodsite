@@ -1,0 +1,25 @@
+<h2>Замовлення №{{ order.id }}</h2>
+<a href="/">← На головну</a> | <a href="/orders/">Мої замовлення</a>
+
+<p><strong>Дата:</strong> {{ order.created_at }}</p>
+<p><strong>Статус:</strong> {{ order.get_status_display }}</p>
+<p><strong>Оплата:</strong> {{ order.get_payment_method_display }}</p>
+<p><strong>Доставка:</strong> {{ order.get_delivery_type_display }}</p>
+
+{% if order.address %}
+<p><strong>Адреса:</strong> {{ order.address }}</p>
+{% endif %}
+
+<hr>
+
+{% for item in order.items.all %}
+  <div>
+    <h4>{{ item.dish.name }}</h4>
+    <p>Кількість: {{ item.quantity }}</p>
+    <p>Ціна за одиницю: {{ item.price }} грн</p>    тщ
+    <p>Сума: {{ item.total_price|floatformat:2 }} грн</p>
+ </div>
+  <hr>
+{% endfor %}
+
+<p><strong>Загальна сума:</strong> {{ order.total_price }} грн</p>

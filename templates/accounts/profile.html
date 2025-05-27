@@ -1,0 +1,20 @@
+<h2>Профіль користувача: {{ user.first_name }}</h2>
+
+<a href="/">← Назад до меню</a> |
+<a href="{% url 'logout' %}">Вийти</a>
+
+<h3>Адреси доставки</h3>
+
+{% for addr in addresses %}
+  <div>
+    <p>{{ addr.city }}, {{ addr.street }} {{ addr.building }} {% if addr.apartment %}, кв. {{ addr.apartment }}{% endif %}
+       {% if addr.is_default %}(основна){% endif %}</p>
+    <a href="{% url 'edit_address' addr.id %}">Редагувати</a> |
+    <a href="{% url 'delete_address' addr.id %}">Видалити</a>
+  </div>
+{% empty %}
+  <p>Немає збережених адрес.</p>
+{% endfor %}
+
+<br>
+<a href="{% url 'add_address' %}"><button>Додати нову адресу</button></a>
