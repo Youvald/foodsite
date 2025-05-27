@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from .models import CustomUser
 from .models import DeliveryAddress
+import re
 
 class AddressForm(forms.ModelForm):
     class Meta:
@@ -21,26 +22,18 @@ class AddressForm(forms.ModelForm):
         self.fields['city'].widget.attrs['readonly'] = True
 
 class RegisterForm(forms.ModelForm):
-    password1 = forms.CharField(
-        label="Пароль",
-        widget=forms.PasswordInput(attrs={'class': 'form-control'})
-    )
-    password2 = forms.CharField(
-        label="Підтвердження пароля",
-        widget=forms.PasswordInput(attrs={'class': 'form-control'})
-    )
+    password1 = forms.CharField(label="Пароль", widget=forms.PasswordInput)
+    password2 = forms.CharField(label="Підтвердження пароля", widget=forms.PasswordInput)
 
     class Meta:
         model = CustomUser
         fields = ['first_name', 'phone']
-        labels = {
-            'first_name': 'Імʼя',
-            'phone': 'Телефон',
-        }
-        widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
-            'phone': forms.TextInput(attrs={'class': 'form-control'}),
-        }
+
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone')
+        if not re.match(r'^\+380\d{9}$', phone):
+            raise forms.ValidationError("Номер телефону має бути у форматі +380XXXXXXXXX")
+        return phone
 
     def clean_password2(self):
         p1 = self.cleaned_data.get('password1')

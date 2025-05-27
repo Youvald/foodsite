@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from .forms import RegisterForm, LoginForm
 
+
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)

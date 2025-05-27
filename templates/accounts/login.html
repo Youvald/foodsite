@@ -7,6 +7,13 @@
 <div class="container mt-5 d-flex justify-content-center">
   <div class="card shadow-sm p-4" style="width: 100%; max-width: 400px;">
     <h3 class="mb-4 text-center">Вхід</h3>
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">
+    Невірний номер телефону або пароль. Спробуйте ще раз.
+  </div>
+    {% endif %}
+
     <form method="post">
       {% csrf_token %}
       {% for field in form %}

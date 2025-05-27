@@ -7,22 +7,30 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="/">Меню</a>
-            <div class="collapse navbar-collapse justify-content-end">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="/orders/">Мої замовлення</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/cart/">Кошик</a></li>
-                    {% if user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="/account/profile/">Профіль ({{ user.first_name }})</a></li>
-                    {% else %}
-                        <li class="nav-item"><a class="nav-link btn btn-sm btn-primary text-white px-3" href="/account/login/">Увійти</a></li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
+  <div class="container">
+    <a class="navbar-brand" href="/">Меню</a>
 
+    <!-- Кнопка для розгортання на мобільних -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Перемикач навігації">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Контент навігації -->
+    <div class="collapse navbar-collapse justify-content-end" id="mainNavbar">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" href="/orders/">Мої замовлення</a></li>
+        <li class="nav-item"><a class="nav-link" href="/cart/">Кошик</a></li>
+        {% if user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link" href="/account/profile/">Профіль ({{ user.first_name }})</a></li>
+        {% else %}
+          <li class="nav-item d-flex align-items-center ms-2">
+            <a class="btn btn-primary text-white px-3 py-1 rounded" href="/account/login/">Увійти</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
     <div class="container">
         {% block content %}{% endblock %}
     </div>
