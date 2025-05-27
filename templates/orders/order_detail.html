@@ -1,25 +1,41 @@
-<h2>Замовлення №{{ order.id }}</h2>
-<a href="/">← На головну</a> | <a href="/orders/">Мої замовлення</a>
+{% extends 'base.html' %}
+{% block title %}Деталі замовлення{% endblock %}
+{% load mathfilters %}
 
-<p><strong>Дата:</strong> {{ order.created_at }}</p>
-<p><strong>Статус:</strong> {{ order.get_status_display }}</p>
-<p><strong>Оплата:</strong> {{ order.get_payment_method_display }}</p>
-<p><strong>Доставка:</strong> {{ order.get_delivery_type_display }}</p>
+{% block content %}
+<div class="container">
+  <h2 class="mb-4">Замовлення №{{ order.id }}</h2>
+  <p><strong>Дата:</strong> {{ order.created_at|date:"d.m.Y H:i" }}</p>
+  <p><strong>Статус:</strong> {{ order.status }}</p>
+  {% if order.delivery_address %}
+    <p><strong>Адреса доставки:</strong> {{ order.delivery_address }}</p>
+  {% endif %}
 
-{% if order.address %}
-<p><strong>Адреса:</strong> {{ order.address }}</p>
-{% endif %}
+  <div class="table-responsive mt-4">
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr>
+          <th>Назва страви</th>
+          <th>Кількість</th>
+          <th>Ціна за одиницю</th>
+          <th>Сума</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in order.items.all %}
+        <tr>
+          <td>{{ item.dish.name }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.price }} грн</td>
+          <td>{{ item.quantity|floatformat:2 }} × {{ item.price|floatformat:2 }} = {{ item.quantity|add:"0"|floatformat:2|floatformat:"0" }} грн</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
-<hr>
+  <h5 class="mt-3">Загальна сума: <strong>{{ order.total_price }} грн</strong></h5>
 
-{% for item in order.items.all %}
-  <div>
-    <h4>{{ item.dish.name }}</h4>
-    <p>Кількість: {{ item.quantity }}</p>
-    <p>Ціна за одиницю: {{ item.price }} грн</p>
-    <p>Сума: {{ item.total_price|floatformat:2 }} грн</p>
- </div>
-  <hr>
-{% endfor %}
-
-<p><strong>Загальна сума:</strong> {{ order.total_price }} грн</p>
+  <a href="{% url 'order_list' %}" class="btn btn-secondary mt-3">← Назад до замовлень</a>
+</div>
+{% endblock %}
