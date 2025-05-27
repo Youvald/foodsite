@@ -1,17 +1,39 @@
-<h2>Мої замовлення</h2>
-<a href="/">← На головну</a> | <a href="{% url 'profile' %}">Профіль</a>
+{% extends 'base.html' %}
+{% block title %}Мої замовлення{% endblock %}
 
-{% if orders %}
-  <ul>
-    {% for order in orders %}
-      <li>
-        <a href="{% url 'order_detail' order.id %}">Замовлення №{{ order.id }}</a><br>
-        Дата: {{ order.created_at|date:"d.m.Y H:i" }}<br>
-        Статус: {{ order.get_status_display }}
-      </li>
-      <hr>
-    {% endfor %}
-  </ul>
-{% else %}
-  <p>У вас ще немає замовлень.</p>
-{% endif %}
+{% block content %}
+<div class="container">
+  <h2 class="mb-4">Мої замовлення</h2>
+
+  {% if orders %}
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Дата</th>
+            <th>Сума</th>
+            <th>Статус</th>
+            <th>Дія</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ order.created_at|date:"d.m.Y H:i" }}</td>
+            <td>{{ order.total_price }} грн</td>
+            <td>{{ order.status }}</td>
+            <td>
+              <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-outline-primary">Переглянути</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p>У вас ще немає замовлень.</p>
+  {% endif %}
+</div>
+{% endblock %}
