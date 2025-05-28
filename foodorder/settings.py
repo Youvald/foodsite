@@ -141,3 +141,5 @@ LOGIN_REDIRECT_URL = '/'
 CSRF_TRUSTED_ORIGINS = [
     'https://foodsite-production.up.railway.app'
 ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
