@@ -88,6 +88,8 @@ DATABASES = {
     )
 }
 
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -136,3 +138,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = '/account/login/'
 LOGIN_REDIRECT_URL = '/'
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://foodsite-production.up.railway.app'
+]
