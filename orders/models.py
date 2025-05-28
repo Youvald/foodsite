@@ -47,6 +47,10 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    crypto_currency = models.CharField(max_length=20, blank=True, null=True)
+    crypto_address = models.CharField(max_length=255, blank=True, null=True)
+    crypto_amount = models.DecimalField(max_digits=20, decimal_places=8, blank=True, null=True)
+    crypto_payment_expiration = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return f"Замовлення #{self.id} — {self.created_at.date()}"
@@ -61,3 +65,25 @@ class OrderItem(models.Model):
         return f"{self.quantity} x {self.dish.name}"
     def total_price(self):
         return self.quantity * self.price
+
+class CryptoWallet(models.Model):
+    CURRENCY_CHOICES = [
+        ('BNB_BSC20', 'BNB (BSC20)'),
+        ('LTC', 'Litecoin'),
+        ('ETH_ERC20', 'ETH (ERC20)'),
+        ('ETH_BASE', 'ETH (Base)'),
+        ('ETH_ARB', 'ETH (Arbitrum)'),
+        ('USDT_BSC20', 'USDT (BSC20)'),
+        ('USDT_ERC20', 'USDT (ERC20)'),
+        ('USDT_TRC20', 'USDT (TRC20)'),
+        ('USDT_APTOS', 'USDT (Aptos)'),
+        ('USDC_BSC20', 'USDC (BSC20)'),
+        ('USDC_ERC20', 'USDC (ERC20)'),
+        ('USDC_BASE', 'USDC (Base)'),
+    ]
+
+    currency = models.CharField(max_length=20, choices=CURRENCY_CHOICES, unique=True)
+    address = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.get_currency_display()} - {self.address}"
