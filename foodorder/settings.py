@@ -83,11 +83,16 @@ WSGI_APPLICATION = 'foodorder.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'foodorder_db',
+        'USER': 'postgres',
+        'PASSWORD': 'Asdf1234',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
 }
+
 
 
 
