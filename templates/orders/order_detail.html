@@ -27,7 +27,7 @@
           <td>{{ item.dish.name }}</td>
           <td>{{ item.quantity }}</td>
           <td>{{ item.price }} грн</td>
-          <td>{{ item.quantity|floatformat:2 }} × {{ item.price|floatformat:2 }} = {{ item.quantity|add:"0"|floatformat:2|floatformat:"0" }} грн</td>
+          <td>{{  item.total_price|floatformat:2 }} грн</td>
         </tr>
         {% endfor %}
       </tbody>

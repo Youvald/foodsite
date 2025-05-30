@@ -52,10 +52,17 @@
 
     <div class="mb-3">
       <label for="payment_method" class="form-label">Спосіб оплати</label>
-      {{ form.payment_method|add_class:"form-select" }}
+      {{ form.payment_method|add_class:"form-select"|attr:"id:payment-method" }}
     </div>
 
-    <button type="submit" class="btn btn-success">Підтвердити замовлення</button>
+    <div id="crypto-fields" class="mb-3" style="display: none;">
+      <label for="crypto" class="form-label">Валюта</label>
+      {{ form.crypto|add_class:"form-select" }}
+      <label for="network" class="form-label mt-2">Мережа</label>
+      {{ form.network|add_class:"form-select" }}
+    </div>
+
+    <button type="submit" class="btn btn-success mt-3">Підтвердити замовлення</button>
   </form>
 </div>
 
@@ -73,7 +80,6 @@
       if (isPickup) {
         newAddressFields.style.display = 'none';
       } else {
-        // Якщо доставка: показати поле нової адреси лише якщо не обрано збережену
         newAddressFields.style.display = savedAddressSelect && savedAddressSelect.value ? 'none' : 'block';
       }
     }
@@ -84,22 +90,30 @@
     const savedAddressSelect = document.querySelector('[name="use_saved_address"]');
     const newAddressFields = document.getElementById('new-address-fields');
 
-    if (deliveryMethod.value === 'pickup') {
-      // Не чіпаємо нічого, бо самовивіз уже ховає
-      return;
-    }
+    if (deliveryMethod.value === 'pickup') return;
 
     if (savedAddressSelect && newAddressFields) {
       newAddressFields.style.display = savedAddressSelect.value ? 'none' : 'block';
     }
   }
 
+  function toggleCryptoFields() {
+    const method = document.getElementById("payment-method");
+    const cryptoFields = document.getElementById("crypto-fields");
+
+    if (method && cryptoFields) {
+      cryptoFields.style.display = method.value === "crypto" ? "block" : "none";
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     toggleAddressFields();
     toggleSavedAddressFields();
+    toggleCryptoFields();
 
     const deliveryMethod = document.getElementById('delivery-method');
     const savedAddressSelect = document.querySelector('[name="use_saved_address"]');
+    const paymentMethod = document.getElementById('payment-method');
 
     if (deliveryMethod) {
       deliveryMethod.addEventListener('change', function () {
@@ -111,8 +125,34 @@
     if (savedAddressSelect) {
       savedAddressSelect.addEventListener('change', toggleSavedAddressFields);
     }
+
+    if (paymentMethod) {
+      paymentMethod.addEventListener('change', toggleCryptoFields);
+    }
   });
+  document.addEventListener('DOMContentLoaded', function () {
+  const cryptoSelect = document.querySelector('[name="crypto"]');
+  const networkSelect = document.querySelector('[name="network"]');
+
+  if (cryptoSelect && networkSelect) {
+    cryptoSelect.addEventListener('change', function () {
+      const selectedCrypto = this.value;
+
+      fetch(`/payment/ajax/get-networks/?crypto=${selectedCrypto}`)
+        .then(response => response.json())
+        .then(data => {
+          // Очистити поточні варіанти
+          networkSelect.innerHTML = '<option value="">---------</option>';
+
+          data.networks.forEach(network => {
+            const option = document.createElement('option');
+            option.value = network.id;
+            option.textContent = network.name;
+            networkSelect.appendChild(option);
+          });
+        });
+    });
+  }
+});
 </script>
-
-
 {% endblock %}

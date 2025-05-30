@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Вибір криптовалюти для оплати</h2>
+  <form method="post">
+    {% csrf_token %}
+
+    <label for="id_crypto">Crypto:</label>
+    <select name="crypto" id="id_crypto" onchange="this.form.submit()">
+      {% for value, label in form.crypto.field.choices %}
+        <option value="{{ value }}" {% if form.crypto.value == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="id_network">Network:</label>
+    {{ form.network }}
+
+    <br><br>
+    <button type="submit" class="btn btn-primary">Продовжити</button>
+  </form>
+{% endblock %}

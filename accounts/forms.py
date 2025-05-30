@@ -2,6 +2,9 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from .models import CustomUser
 from .models import DeliveryAddress
+import re
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 class AddressForm(forms.ModelForm):
     class Meta:
@@ -56,7 +59,21 @@ class RegisterForm(forms.ModelForm):
             user.save()
         return user
 
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone')
+        pattern = r'^\+380\d{9}$'
+        if not re.match(pattern, phone):
+            raise ValidationError("Номер телефону має бути у форматі +380XXXXXXXXX")
+        return phone
+
+
 class LoginForm(AuthenticationForm):
     username = forms.CharField(label="Номер телефону")
     password = forms.CharField(label="Пароль", widget=forms.PasswordInput)
 
+    error_messages = {
+        'invalid_login': _(
+            "Неправильний номер телефону або пароль. Будь ласка, спробуйте ще раз."
+        ),
+        'inactive': _("Цей обліковий запис неактивний."),
+    }

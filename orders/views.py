@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Order, OrderItem
 from .forms import CheckoutForm
 from cart.cart import Cart
-
+from payment.models import CryptoWallet
 
 @login_required
 def checkout_view(request):
@@ -14,22 +14,36 @@ def checkout_view(request):
     if request.method == 'POST':
         form = CheckoutForm(request.POST, user=request.user)
         if form.is_valid():
-            # Створення замовлення без збереження
+            payment_method = form.cleaned_data['payment_method']
+
+            # Якщо обрано оплату криптовалютою — отримуємо гаманець
+            wallet = None
+            if payment_method == 'crypto':
+                crypto = form.cleaned_data['crypto']
+                network = form.cleaned_data['network']
+                try:
+                    wallet = CryptoWallet.objects.get(crypto=crypto, network=network)
+                except CryptoWallet.DoesNotExist:
+                    form.add_error(None, "Обраний гаманець не знайдено.")
+                    return render(request, 'orders/checkout.html', {'form': form})
+
+            # Створення замовлення
             order = Order(
                 user=request.user,
                 first_name=form.cleaned_data['name'],
                 phone=form.cleaned_data['phone'],
                 delivery_type=form.cleaned_data['delivery_type'],
-                payment_method=form.cleaned_data['payment_method']
+                payment_method=payment_method,
+                crypto_wallet=wallet
             )
 
-            # Розрахунок суми
+            # Розрахунок загальної суми
             total = cart.get_total_price()
             if order.delivery_type == 'delivery' and total < 1500:
                 total += 100
             order.total_price = total
 
-            # Адреса (нова або збережена)
+            # Додавання адреси
             saved_address = form.cleaned_data.get('use_saved_address')
             if saved_address:
                 order.street = saved_address.street
@@ -42,7 +56,7 @@ def checkout_view(request):
 
             order.save()
 
-            # Додавання позицій у замовлення
+            # Додавання позицій до замовлення
             for item in cart:
                 OrderItem.objects.create(
                     order=order,
@@ -53,13 +67,14 @@ def checkout_view(request):
 
             cart.clear()
 
-            # Перенаправлення в залежності від способу оплати
-            if order.payment_method in ['binance', 'liqpay']:
-                return redirect(f'/pay/{order.id}/')
-            return redirect(f'/order/{order.id}/')
+            # Переадресація за способом оплати
+            if payment_method == 'crypto':
+                return redirect('crypto_payment_page', order_id=order.id)
+            elif payment_method == 'cash':
+                return redirect('order_detail', order_id=order.id)
 
     else:
-        # Попереднє заповнення імені та телефону
+        # Ініціалізація форми
         initial = {
             'name': request.user.first_name,
             'phone': request.user.phone,

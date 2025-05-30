@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'accounts',
     'mathfilters',
     'widget_tweaks',
+    'payment',
 
 ]
 
@@ -82,10 +83,15 @@ WSGI_APPLICATION = 'foodorder.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'foodorder_db',
+        'USER': 'postgres',
+        'PASSWORD': 'Asdf1234',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
+
 
 
 # Password validation
@@ -135,4 +141,9 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = '/account/login/'
 LOGIN_REDIRECT_URL = '/'
+
+BSCSCAN_API_KEY = 'QDIT2AZ8I3V5AUNRKAYEH97B93ZW9KUVMM'
+
+USE_TZ = True
+TIME_ZONE = 'Europe/Kyiv'  # або твоя зона
 

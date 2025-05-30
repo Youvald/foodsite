@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Оплата криптовалютою</h2>
+<p><strong>Адреса:</strong> <span id="address">{{ address }}</span> <button onclick="copyToClipboard('address')">Копіювати</button></p>
+<p><strong>Сума:</strong> <span id="amount">{{ amount }}</span> <button onclick="copyToClipboard('amount')">Копіювати</button></p>
+
+<img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR code" style="width:200px;height:200px;" />
+
+<p><strong>Час до завершення:</strong> <span id="countdown"></span></p>
+
+<script>
+function checkStatus() {
+    console.log("Перевірка статусу...");  // Додано для відлагодження
+    fetch("{% url 'check_payment_status' order.id %}")
+      .then(response => response.json())
+      .then(data => {
+        console.log("Отримано відповідь:", data);  // Вивести відповідь у консоль
+        if (data.status === "PAID") {
+          window.location.href = "{% url 'payment_success' order.id %}";
+        }
+      })
+      .catch(error => {
+        console.error("Помилка при перевірці статусу:", error);
+      });
+}
+setInterval(checkStatus, 5000);
+
+function copyToClipboard(id) {
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text);
+}
+
+function startCountdown(expiration) {
+  const countdown = document.getElementById('countdown');
+  const end = new Date(expiration).getTime();
+
+  function update() {
+    const now = new Date().getTime();
+    const distance = end - now;
+    if (distance < 0) {
+      countdown.innerText = "Час вийшов!";
+      return;
+    }
+    const hours = Math.floor((distance / (1000 * 60 * 60)));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    countdown.innerText = `${hours}г ${minutes}хв ${seconds}с`;
+    setTimeout(update, 1000);
+  }
+
+  update();
+}
+
+// ✅ виклик з аргументом
+startCountdown("{{ expiration_time|date:'Y-m-d H:i:s' }}");
+</script>
+{% endblock %}
